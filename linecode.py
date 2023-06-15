@@ -27,13 +27,6 @@ def encode(binary):
         ternary += convert_to_ternary(decimal)
     return ternary
 
-def convert_to_ternary(decimal):
-    ternary = ""
-    while decimal > 0:
-        remainder = decimal % 3
-        ternary = str(remainder) + ternary
-        decimal = decimal // 3
-    return ternary.zfill(6)
 
 def decode(ternary):
     binary = ""
@@ -42,6 +35,18 @@ def decode(ternary):
         decimal = convert_to_decimal(trit)
         binary += "{0:08b}".format(decimal)
     return binary
+
+
+# \**********************************************\
+
+def convert_to_ternary(decimal):
+    ternary = ""
+    while decimal > 0:
+        remainder = decimal % 3
+        ternary = str(remainder) + ternary
+        decimal = decimal // 3
+    return ternary.zfill(6)
+
 
 def convert_to_decimal(trit):
     decimal = 0

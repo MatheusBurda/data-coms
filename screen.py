@@ -1,13 +1,15 @@
 import tkinter as tk
-from crypt import encrypt
-from binary import string_to_binary
-from linecode import encode
 import numpy as np
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+from binary import string_to_binary
+from linecode import encode
+from cryptog import encrypt
 
-def plotar_grafico(mensagem):
+
+def plot_graph(mensagem):
+    global figure, canvas
     valores_y = []
 
     for char in mensagem:
@@ -16,52 +18,63 @@ def plotar_grafico(mensagem):
 
     tempos_x = np.arange(len(valores_y))
 
-    # Criar figura do Matplotlib
-    figura = Figure(figsize=(15, 2), dpi=50)
-    subplot = figura.add_subplot(111)
+    figure = Figure(figsize=(15, 5), dpi=70)
+    subplot = figure.add_subplot(111)
 
     # Plotar gráfico de escada
     subplot.plot(tempos_x, valores_y, drawstyle='steps-post', marker='o')
-    subplot.set_xlabel('Tempo')
-    subplot.set_ylabel('Valores')
-    subplot.set_title('Gráfico Stair')
+    subplot.set_xlabel('Time')
+    subplot.set_ylabel('Ternary Value')
+    subplot.set_title('8B6T line coding graph')
 
-    # Criar canvas do Matplotlib para Tkinter
-    canvas = FigureCanvasTkAgg(figura, master=janela)
+    canvas = FigureCanvasTkAgg(figure, master=janela)
     canvas.draw()
 
     # Posicionar o canvas na janela do Tkinter
     canvas.get_tk_widget().place(relx=0.5, rely=0.6, anchor=tk.CENTER)
 
 
-def limpar():
+def clear_all():
     mensagem_entry.delete(0, tk.END)
     valor1_entry.delete(0, tk.END)
     valor2_entry.delete(0, tk.END)
     valor3_entry.delete(0, tk.END)
+    for item in canvas.get_tk_widget().find_all():
+       canvas.get_tk_widget().delete(item)
 
 
-def enviar_mensagem():
+def send():
+
     mensagem = mensagem_entry.get()
     
     mensagem = encrypt(mensagem)
+    valor1_entry.delete(0, 'end')
     valor1_entry.insert(0, mensagem)
 
     mensagem = string_to_binary(mensagem)
+    valor2_entry.delete(0, 'end')
     valor2_entry.insert(0, mensagem)
 
     mensagem = encode(mensagem)
+    valor3_entry.delete(0, 'end')
     valor3_entry.insert(0, mensagem)
 
-    plotar_grafico(mensagem)
+    plot_graph(mensagem)
+
+
+
 
 
 # Criar janela principal
 janela = tk.Tk()
 janela.title("Exemplo de Janela")
-janela.geometry("700x450")
+janela.geometry("900x650")
 janela.resizable(False, False)  # Impede a janela de ser redimensionada
 
+# Criar figure do Matplotlib
+figure = Figure(figsize=(15, 5), dpi=70)
+# Criar canvas do Matplotlib para Tkinter
+canvas = FigureCanvasTkAgg(figure, master=janela)
 
 # Criar rótulo e campo de entrada de texto para a mensagem
 mensagem_label = tk.Label(janela, text="Mensagem:")
@@ -86,12 +99,12 @@ valor3_entry = tk.Entry(janela, width=100)
 valor3_entry.pack()
 
 
-# Criar botões de enviar e limpar
-enviar_button = tk.Button(janela, text="Enviar", command=enviar_mensagem)
+# Criar botões de enviar e clear_all
+enviar_button = tk.Button(janela, text="Enviar", command=send)
 enviar_button.place(relx=1.0, rely=1.0, anchor=tk.SE)
 
-limpar_button = tk.Button(janela, text="Limpar", command=limpar)
-limpar_button.place(relx=0.0, rely=1.0, anchor=tk.SW)
+clear_all_button = tk.Button(janela, text="clear_all", command=clear_all)
+clear_all_button.place(relx=0.0, rely=1.0, anchor=tk.SW)
 
 # Iniciar o loop principal da janela
 janela.mainloop()
