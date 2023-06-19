@@ -57,7 +57,10 @@ def send():
 
     mensagem = encode(mensagem)
     valor3_entry.delete(0, 'end')
-    valor3_entry.insert(0, mensagem)
+
+    line_code = mensagem.replace('2', '+').replace('0', '-').replace('1', '0')
+
+    valor3_entry.insert(0, line_code)
 
     plot_graph(mensagem)
 
