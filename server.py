@@ -6,7 +6,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from binary import binary_to_string
 from linecode import decode
 from cryptog import decrypt
-
+import threading
 
 PORT = 17171            # The port used by the server
 
@@ -20,8 +20,10 @@ def receive_with_socket():
 
         with conn:
             print(f"Connected to client on {addr}")
-
-            return conn.recv(1024).decode('utf-8')
+            while True:
+                data = conn.recv(1024).decode('utf-8')
+                receive(data)
+                conn.sendall(data)
 
 def plot_graph(mensagem):
     global figure, canvas
@@ -58,8 +60,7 @@ def clear_all():
        canvas.get_tk_widget().delete(item)
 
 
-def receive():
-    mensagem = receive_with_socket()
+def receive(mensagem):
     plot_graph(mensagem)
 
     line_code = mensagem.replace('2', '+').replace('0', '-').replace('1', '0')
@@ -118,8 +119,10 @@ valor3_entry.pack()
 
 
 # Criar botões de enviar e clear_all
-enviar_button = tk.Button(janela, text="Receber", command=receive)
-enviar_button.place(relx=1.0, rely=1.0, anchor=tk.SE)
+#enviar_button = tk.Button(janela, text="Receber", command=receive)
+#enviar_button.place(relx=1.0, rely=1.0, anchor=tk.SE)
+recv_thread = threading.Thread(target=receive_with_socket)
+recv_thread.start()
 
 clear_all_button = tk.Button(janela, text="clear_all", command=clear_all)
 clear_all_button.place(relx=0.0, rely=1.0, anchor=tk.SW)
