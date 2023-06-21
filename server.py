@@ -16,14 +16,20 @@ def receive_with_socket():
 
         server_socket.bind(('', PORT))
         server_socket.listen()
-        conn, addr = server_socket.accept()
 
-        with conn:
-            print(f"Connected to client on {addr}")
-            while True:
-                data = conn.recv(1024).decode('utf-8')
-                receive(data)
-                conn.sendall(data)
+        while True:
+            conn, addr = server_socket.accept()                   
+            with conn:
+                print(f"Connected to client on {addr}")
+                while True:
+                    data = conn.recv(1024).decode('utf-8')
+                    receive(data)
+                    if not data:
+                        break 
+
+        
+            
+
 
 def plot_graph(mensagem):
     global figure, canvas
@@ -60,33 +66,33 @@ def clear_all():
        canvas.get_tk_widget().delete(item)
 
 
-def receive(mensagem):
-    plot_graph(mensagem)
+def receive(mensagem:str):
+    if len(mensagem) != 0:
+        plot_graph(mensagem)
 
-    line_code = mensagem.replace('2', '+').replace('0', '-').replace('1', '0')
+        line_code = mensagem.replace('2', '+').replace('0', '-').replace('1', '0')
 
-    valor3_entry.delete(0, 'end')
-    valor3_entry.insert(0, line_code)
+        valor3_entry.delete(0, 'end')
+        valor3_entry.insert(0, line_code)
+        mensagem = decode(mensagem)
 
-    mensagem = decode(mensagem)
+        valor2_entry.delete(0, 'end')
+        valor2_entry.insert(0, mensagem)
+        mensagem = binary_to_string(mensagem)
 
-    valor2_entry.delete(0, 'end')
-    valor2_entry.insert(0, mensagem)
-    mensagem = binary_to_string(mensagem)
+        valor1_entry.delete(0, 'end')
+        valor1_entry.insert(0, mensagem)
+        mensagem = decrypt(mensagem)
 
-    valor1_entry.delete(0, 'end')
-    valor1_entry.insert(0, mensagem)
-    mensagem = decrypt(mensagem)
-
-    mensagem_entry.delete(0, 'end')
-    mensagem_entry.insert(0, mensagem)
-
+        mensagem_entry.delete(0, 'end')
+        mensagem_entry.insert(0, mensagem)
+        janela.update()
 
 
 
 # Criar janela principal
 janela = tk.Tk()
-janela.title("Exemplo de Janela")
+janela.title("Servidor")
 janela.geometry("900x650")
 janela.resizable(False, False)  # Impede a janela de ser redimensionada
 

@@ -11,18 +11,26 @@ from linecode import encode
 from cryptog import encrypt
 
 
-HOST = "192.168.15.114"    # The server's hostname or IP address
+HOST = "192.168.15.81"    # The server's hostname or IP address
 PORT = 17171            # The port used by the server
 
+socket_instance = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+socket_instance.connect((HOST, PORT))
+print(f"Connected to server on {HOST}")
+
+
 def send_with_socket(message):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((HOST, PORT))
+    global socket_instance
+    try:
+        socket_instance.sendall(message.encode('utf-8'))
+        print(f"Message Sent!")
+
+    except socket.error as msg:
+        print(f"Error: {msg}")
+        socket_instance.connect((HOST, PORT))
         print(f"Connected to server on {HOST}")
 
-        s.sendall(message.encode('utf-8'))
 
-        print(f"Message Sent! Closing connection to {HOST}.")
-        s.close()
 
 def plot_graph(mensagem):
     global figure, canvas
@@ -83,12 +91,9 @@ def send():
     send_with_socket(mensagem)
 
 
-
-
-
 # Criar janela principal
 janela = tk.Tk()
-janela.title("Exemplo de Janela")
+janela.title("Client")
 janela.geometry("900x650")
 janela.resizable(False, False)  # Impede a janela de ser redimensionada
 
@@ -127,5 +132,12 @@ enviar_button.place(relx=1.0, rely=1.0, anchor=tk.SE)
 clear_all_button = tk.Button(janela, text="clear_all", command=clear_all)
 clear_all_button.place(relx=0.0, rely=1.0, anchor=tk.SW)
 
+def on_closing():
+    socket_instance.close()
+    janela.destroy()
+
+janela.protocol("WM_DELETE_WINDOW", on_closing)
+
 # Iniciar o loop principal da janela
 janela.mainloop()
+
